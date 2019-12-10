@@ -1,0 +1,12 @@
+# Backend
+/backend/api/node_modules
+/backend/api/dist
+/backend/api/npm-debug.log*
+
+# Frontend
+/frontend/app/dist
+/frontend/app/node_modules
+/frontend/app/npm-debug.log*
+
+
+
