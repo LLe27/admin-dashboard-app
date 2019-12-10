@@ -1,0 +1,52 @@
+body {
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+body>.container {
+    padding: 60px 15px 0;
+    background: #fefefe;
+}
+
+body.bg-dark {
+    background: #444444;
+}
+
+#sign-in,
+#sign-up {
+    width: 400px;
+    padding: 20px;
+    margin: auto auto;
+    border-radius: 5px;
+    background: #fefefe;
+}
+
+#sign-in .btn,
+#sign-up .btn {
+    width: 100%
+}
+
+div.hr-or {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+    height: 0px;
+    line-height: 0px;
+}
+
+div.hr-or:before {
+    content: 'OR';
+    background-color: #fff;
+    padding: 10px;
+    color: #444444;
+}
+
+.main-content {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
