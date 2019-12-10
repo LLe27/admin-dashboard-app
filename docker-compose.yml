@@ -1,0 +1,44 @@
+version: '3.7'
+
+services: 
+    api:
+        build:
+            context: ./backend/api
+        container_name: api
+        ports:
+            - "8080:8080"
+        volumes: 
+            - ./backend/api/database:/usr/src/app/database
+            - ./backend/api/routes:/usr/src/app/routes
+        restart: always
+        networks: 
+            - webnet
+
+    app:
+        build:
+            context: ./frontend
+            target: 'develop-stage'
+        container_name: app
+        ports:
+            - '80:80'
+        volumes:
+            - './frontend/app/src/:/app/src'
+        command: 'npm run serve'
+        networks: 
+            - webnet
+
+    db:
+        image: mysql:latest
+        container_name: db
+        command: --default-authentication-plugin=mysql_native_password
+        environment: 
+            MYSQL_ROOT_PASSWORD: password
+        volumes: 
+            - ./backend/database/init:/docker-entrypoint-initdb.d
+        restart: always
+        networks: 
+            - webnet
+
+networks: 
+    webnet:
+        driver: bridge

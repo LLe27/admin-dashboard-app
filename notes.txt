@@ -1,0 +1,58 @@
+image: mysql:latest
+        command: --default-authentication-plugin=mysql_native_password
+        environment: 
+            MYSQL_USER: root
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: password
+        volumes: 
+            - ./backend/database/data:/var/lib/mysql
+            - ./backend/database/init:/docker-entrypoint-initdb.d
+        restart: always
+        networks: 
+            - webnet
+
+
+
+            version: "3.7"
+
+services:
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: supersecretpassword
+      MYSQL_ROOT_PASSWORD: supersecretpassword
+    networks: 
+      - webnet
+        
+  api:
+    build: 
+      context: ./backend/api
+    container_name: restapi
+    ports:
+      - "8080:8080"
+    volumes: 
+      - ./backend/api:/usr/src/app
+    restart: always
+    networks: 
+      - webnet
+
+networks: 
+  webnet:
+    driver: bridge
+
+
+    # Copy docker container alignment file
+# COPY /scripts/wait-for-it.sh /bin/
+# RUN chmod +x /bin/wait-for-it.sh
+# ENTRYPOINT /bin/wait-for-it.sh -t 30 db:3306 && node index.js
+
+
+# Remove all images
+docker-compose down -v
+docker rmi -f $(docker images -a -q)
+
+# Remove all containers
+docker container prune
