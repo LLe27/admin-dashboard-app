@@ -27,6 +27,7 @@ function requireAuth(to, from, next) {
   }
 }
 
+// NOTE: Routing should be handled a lot better when it comes to authenticated users.
 const router = new VueRouter({
   mode: 'history',
   base: __dirname,
@@ -46,8 +47,8 @@ const router = new VueRouter({
     {
       path: '/logout',
       beforeEnter(to, from, next) {
-        // auth.logout()
-        next('/')
+        auth.logout();
+        next('/');
       }
     }
   ]

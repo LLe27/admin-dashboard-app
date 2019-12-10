@@ -5,7 +5,7 @@
             <div v-if="alertStatus" :class="['alert', alertType]">
                 {{ alertMessage }}
             </div>
-            <h6 class="text-danger">All fields are required.</h6>
+            <h6 v-if="!checkForm()" class="text-danger">All fields are required.</h6>
             <div class="form-group">
                 <label for="emailInput">Email address</label>
                 <input ref="emailInput" v-model="email" type="text" class="form-control is-invalid" id="emailInput"
@@ -113,6 +113,11 @@ export default {
                                     path: '/status'
                                 })
                             }, 2000);
+                        }
+                        else if (json.result == 'DUPLICATE ENTRY') {
+                            this.alertType = 'alert-warning'
+                            this.alertMessage = 'A user with the provided email already exists. Please provide another email.';
+                            this.alertStatus = true;
                         }
                     })
                     .catch((err) => {

@@ -5,14 +5,14 @@ FROM node:lts-alpine as develop-stage
 # Set the working directory to /app
 WORKDIR /app
 
-# Copy the /app directory contents into the container at /app
-COPY /app ./
+# Copy the dependency file contents into the container at /app
+COPY /app/package*.json ./
 
 # Install node dependencies
 RUN npm install
 
 # Copy current directory into the container current directory
-COPY . .
+COPY /app .
 
 # develop stage
 FROM develop-stage as build-stage
