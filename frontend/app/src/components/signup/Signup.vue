@@ -135,7 +135,7 @@ export default {
                             // Redirect
                             setTimeout(() => {
                                 this.$router.push({
-                                    path: '/status'
+                                    path: '/'
                                 })
                             }, 2000);
                         } else if (json.result == 'DUPLICATE ENTRY') {
