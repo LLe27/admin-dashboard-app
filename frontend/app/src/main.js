@@ -27,22 +27,34 @@ function requireAuth(to, from, next) {
   }
 }
 
+function redirect(to, from, next) {
+  if (!auth.loggedIn()) {
+    next();
+  } else {
+    next({
+      path: '/',
+    })
+  }
+}
+
 // NOTE: Routing should be handled a lot better when it comes to authenticated users.
 const router = new VueRouter({
   mode: 'history',
   base: __dirname,
   routes: [{
+      path: '/',
+      component: status,
+      beforeEnter: requireAuth
+    },
+    {
       path: '/login',
-      component: login
+      component: login,
+      beforeEnter: redirect
     },
     {
       path: '/signup',
-      component: signup
-    },
-    {
-      path: '*',
-      component: status,
-      beforeEnter: requireAuth
+      component: signup,
+      beforeEnter: redirect
     },
     {
       path: '/logout',

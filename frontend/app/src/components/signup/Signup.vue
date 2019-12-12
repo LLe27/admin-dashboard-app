@@ -8,36 +8,34 @@
             <h6 v-if="!checkForm()" class="text-danger">All fields are required.</h6>
             <div class="form-group">
                 <label for="emailInput">Email address</label>
-                <input ref="emailInput" v-model="email" type="text" class="form-control is-invalid" id="emailInput"
-                    aria-describedby="loginInput" @input="validateEmail()">
-                <small v-if="!validEmail" class="text-primary">Please enter a valid email address.</small>
+                <input ref="emailInput" v-model="email" type="text" class="form-control" id="emailInput"
+                    aria-describedby="loginInput" @input="handleEmailInput()">
+                <small v-if="invalidEmail" class="text-danger">Please enter a valid email address.</small>
             </div>
             <div class="form-group">
                 <label for="firstNameInput">First name</label>
-                <input v-model="firstName" type="text"
-                    :class="['form-control', firstName.length>0 ? 'is-valid' : 'is-invalid']" id="firstNameInput"
-                    aria-describedby="loginInput">
-                <small v-if="!firstName>0" class="text-primary">Please enter a first name.</small>
+                <input ref="firstNameInput" v-model="firstName" type="text" class="form-control" id="firstNameInput"
+                    aria-describedby="loginInput" @input="handleFirstName()">
+                <small v-if="invalidFirstName" class="text-danger">Please enter a first name.</small>
             </div>
             <div class="form-group">
                 <label for="lastNameInput">Last name</label>
-                <input v-model="lastName" type="text"
-                    :class="['form-control', lastName.length>0 ? 'is-valid' : 'is-invalid']" id="lastNameInput"
-                    aria-describedby="loginInput">
-                <small v-if="!lastName>0" class="text-primary">Please enter a last name.</small>
+                <input ref="lastNameInput" v-model="lastName" type="text" class="form-control" id="lastNameInput"
+                    aria-describedby="loginInput" @input="handleLastName()">
+                <small v-if="invalidLastName" class="text-danger">Please enter a last name.</small>
             </div>
             <div class="form-group">
                 <label for="passwordInput">Password</label>
-                <input ref="password" v-model="password" type="password" class="form-control is-invalid"
-                    id="passwordInput" maxlength="20" @input="checkPasswords()">
-                <small v-if="!validPassword" class="text-primary">Enter a password between 6 to 20 characters which
+                <input ref="passwordInput" v-model="password" type="password" class="form-control" id="passwordInput"
+                    maxlength="20">
+                <small v-if="invalidPassword" class="text-danger">Please a password between 6 to 20 characters which
                     contain at least one numeric digit, one uppercase and one lowercase letter.</small>
             </div>
             <div class="form-group">
                 <label for="reenterPasswordInput">Re-enter Password</label>
-                <input ref="reenterPassword" v-model="reenterPassword" type="password" class="form-control is-invalid"
-                    maxlength="20" id="reenterPasswordInput" @input="checkPasswords()">
-                <small v-if="!matchPassword" class="text-primary">Please re-enter the password provided. Passwords must
+                <input ref="reenterPassword" v-model="reenterPassword" type="password" class="form-control"
+                    maxlength="20" id="reenterPasswordInput">
+                <small v-if="invalidMatch" class="text-danger">Please re-enter the password provided. Passwords must
                     match in order to be valid.</small>
             </div>
             <button type="submit" class="btn btn-primary" ref="submit" @click="signup()">Sign up</button>
@@ -62,22 +60,49 @@ export default {
             lastName: '',
             password: '',
             reenterPassword: '',
-            matchPassword: false,
-            validEmail: false,
-            validForm: false,
-            validPassword: false
+            invalidEmail: false,
+            invalidFirstName: false,
+            invalidLastName: false,
+            invalidMatch: false,
+            invalidPassword: false
         }
     },
     methods: {
-        checkPasswords() {
-            this.validatePassword();
-            this.matchPasswords();
-        },
         checkForm() {
-            if (this.firstName && this.lastName && this.validEmail && this.validPassword) return true
+            if (!this.invalidEmail && !this.invalidFirstName && !this.invalidLastName && !this.invalidPassword && !this.invalidMatch) return true
             else return false
         },
+        handleEmailInput() {
+            let validEmail = this.email
+
+            // Remove all whitespaces
+            validEmail = validEmail.replace(/\s/g, '');
+            this.email = validEmail;
+        },
+        handleFirstName() {
+            let validFirstname = this.firstName
+
+            // Remove all whitespaces
+            validFirstname = validFirstname.trim();
+            validFirstname = validFirstname.replace(/[^a-zA-Z]/g,'');
+            this.firstName = validFirstname;
+        },
+        handleLastName() {
+            let validLastName = this.validLastName
+
+            // Remove all whitespaces
+            validLastName = validLastName.trim();
+            validLastName = validLastName.replace(/[^a-zA-Z]/g,'');
+            this.lastName = validLastName;
+        },
         async signup() {
+            // Validate form
+            this.validateEmail();
+            this.validateFirstName();
+            this.validateLastName();
+            this.validatePassword();
+            this.matchPasswords();
+
             if (this.checkForm()) {
                 // Proxy should be used, but not be configured given the time frame
                 /* eslint-disable */
@@ -113,8 +138,7 @@ export default {
                                     path: '/status'
                                 })
                             }, 2000);
-                        }
-                        else if (json.result == 'DUPLICATE ENTRY') {
+                        } else if (json.result == 'DUPLICATE ENTRY') {
                             this.alertType = 'alert-warning'
                             this.alertMessage = 'A user with the provided email already exists. Please provide another email.';
                             this.alertStatus = true;
@@ -130,37 +154,63 @@ export default {
         },
         matchPasswords() {
             let regex = new RegExp(this.password, "g");
-            if (this.reenterPassword.match(regex)) {
-                this.$refs.reenterPassword.classList.remove('is-invalid');
+            if (this.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/) && this.reenterPassword.match(regex)) {
+                this.invalidMatch = false;
                 this.$refs.reenterPassword.classList.add('is-valid');
-                this.matchPassword = true;
+                this.$refs.reenterPassword.classList.remove('is-invalid');
 
             } else {
-                this.$refs.reenterPassword.classList.remove('is-valid');
+                this.invalidMatch = true;
                 this.$refs.reenterPassword.classList.add('is-invalid');
-                this.matchPassword = false;
+                this.$refs.reenterPassword.classList.remove('is-valid');
             }
         },
         validateEmail() {
+            // Validate email format
             if (this.email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
-                this.$refs.emailInput.classList.remove('is-invalid');
+                this.invalidEmail = false;
                 this.$refs.emailInput.classList.add('is-valid');
-                this.validEmail = true;
+                this.$refs.emailInput.classList.remove('is-invalid');
             } else {
-                this.$refs.emailInput.classList.remove('is-valid');
+                this.invalidEmail = true;
                 this.$refs.emailInput.classList.add('is-invalid');
-                this.validEmail = false;
+                this.$refs.emailInput.classList.remove('is-valid');
+            }
+        },
+        validateFirstName() {
+            // Validate first name format
+            if (this.firstName.match(/\w+$/)) {
+                this.invalidFirstName = false;
+                this.$refs.firstNameInput.classList.add('is-valid');
+                this.$refs.firstNameInput.classList.remove('is-invalid');
+            } else {
+                this.invalidFirstName = true;
+                this.$refs.firstNameInput.classList.add('is-invalid');
+                this.$refs.firstNameInput.classList.remove('is-valid');
+            }
+        },
+        validateLastName() {
+            // Validate first name format
+            if (this.lastName.match(/\w+$/)) {
+                this.invalidLastName = false;
+                this.$refs.lastNameInput.classList.add('is-valid');
+                this.$refs.lastNameInput.classList.remove('is-invalid');
+            } else {
+                this.invalidLastName = true;
+                this.$refs.lastNameInput.classList.add('is-invalid');
+                this.$refs.lastNameInput.classList.remove('is-valid');
             }
         },
         validatePassword() {
+            // Validate password format
             if (this.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/)) {
-                this.$refs.password.classList.remove('is-invalid');
-                this.$refs.password.classList.add('is-valid');
-                this.validPassword = true;
+                this.invalidPassword = false;
+                this.$refs.passwordInput.classList.add('is-valid');
+                this.$refs.passwordInput.classList.remove('is-invalid');
             } else {
-                this.$refs.password.classList.remove('is-valid');
-                this.$refs.password.classList.add('is-invalid');
-                this.validPassword = false;
+                this.invalidPassword = true;
+                this.$refs.passwordInput.classList.add('is-invalid');
+                this.$refs.passwordInput.classList.remove('is-valid');
             }
         }
     },
