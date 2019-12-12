@@ -13,3 +13,14 @@ To build the application, run the following command:
 
 To stop the application and remove all volumes:
 ```docker-compose down -v```
+
+# Task List
+- [x] Configure the environment with docker services
+- [x] Set up RESTful API and basic CRUD operations
+- [x] Set up MySQL database
+- [x] Set up Vuejs frontend
+- [ ] Set up proxy
+- [ ] Data encryption integration
+- [ ] JWT validation integration
+- [ ] Login/Signup form field validation
+- [ ] Application routing and authentication
