@@ -22,5 +22,5 @@ To stop the application and remove all volumes:
 - [ ] Set up proxy
 - [ ] Data encryption integration
 - [ ] JWT validation integration
-- [ ] Login/Signup form field validation
+- [x] Login/Signup form field validation
 - [ ] Application routing and authentication
