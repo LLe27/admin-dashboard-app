@@ -20,7 +20,7 @@ To stop the application and remove all volumes:
 - [x] Set up MySQL database
 - [x] Set up Vuejs frontend
 - [ ] Set up proxy
-- [ ] Data encryption integration
-- [ ] JWT validation integration
+- [x] Data encryption integration
+- [x] JWT validation integration
 - [x] Login/Signup form field validation
 - [ ] Application routing and authentication
