@@ -72,7 +72,7 @@ export default {
                     })
                     .then((json) => {
                         // Authenticated user
-                        if (json.result.match(/AUTHENTICATED/g)) {
+                        if (json.result.match(/^AUTHENTICATED$/i)) {
                             // Set localstorage jwt token
                             auth.setToken(json.token);
 
@@ -90,9 +90,15 @@ export default {
                             }, 2000);
                         } else {
                             // Provide frontend warnings
-                            this.alertType = 'alert-warning'
+                            this.alertType = 'alert-danger'
                             this.alertMessage = 'The credentials provided does not match or the account does not exist. Please try again.';
                             this.alertStatus = true;
+
+                            // Set invalid status
+                            this.$refs.emailInput.classList.add('is-invalid');
+                            this.$refs.emailInput.classList.remove('is-valid');
+                            this.$refs.passwordInput.classList.add('is-invalid');
+                            this.$refs.passwordInput.classList.remove('is-valid');
                         }
                     })
                     .catch((err) => {
