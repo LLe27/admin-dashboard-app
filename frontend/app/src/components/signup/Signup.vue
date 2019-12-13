@@ -73,26 +73,22 @@ export default {
             else return false
         },
         handleEmailInput() {
-            let validEmail = this.email
-
             // Remove all whitespaces
-            validEmail = validEmail.replace(/\s/g, '');
+            let validEmail = this.email.replace(/\s/g, '');
             this.email = validEmail;
         },
         handleFirstName() {
             let validFirstname = this.firstName
 
-            // Remove all whitespaces
-            validFirstname = validFirstname.trim();
-            validFirstname = validFirstname.replace(/[^a-zA-Z]/g,'');
+            // Remove all whitespaces, numeric and special characters
+            validFirstname = validFirstname.replace(/[^a-zA-Z]/g, '');
             this.firstName = validFirstname;
         },
         handleLastName() {
             let validLastName = this.lastName;
 
-            // Remove all whitespaces
-            validLastName = validLastName.trim();
-            validLastName = validLastName.replace(/[^a-zA-Z]/g,'');
+            // Remove all whitespaces, numeric and special characters
+            validLastName = validLastName.replace(/[^a-zA-Z]/g, '');
             this.lastName = validLastName;
         },
         async signup() {

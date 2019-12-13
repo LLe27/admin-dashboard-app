@@ -43,20 +43,18 @@ export default {
     },
     methods: {
         handleEmailInput() {
-            let validEmail = this.email
-
             // Remove all whitespaces
-            validEmail = validEmail.replace(/\s/g, '');
+            let validEmail = this.email.replace(/\s/g, '');
             this.email = validEmail;
         },
         async login() {
             /* eslint-disable */
-
             // Validate form fields
             this.validateEmail();
             this.validatePassword();
 
-            if (!this.invalidEmail && !this.invalidEmail) {
+            // Allow submission for valid email and password
+            if (!this.invalidEmail && !this.invalidPassword) {
                 // Proxy should be used, but not be configured given the time frame
                 let response = await fetch('http://localhost:8080/api/auth/login', {
                         method: 'POST',
@@ -81,7 +79,7 @@ export default {
                             // Set sucessful authentication message
                             this.$refs.loginButton.disabled = true;
                             this.alertType = 'alert-success'
-                            this.alertMessage = 'Successfully logged in! Please wait to be redirected...';
+                            this.alertMessage = 'Successful login! Please wait to be redirected.';
                             this.alertStatus = true;
 
                             // Redirect

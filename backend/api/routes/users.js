@@ -10,16 +10,16 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
+
 // CREATE
 router.post('/create', (req, res) => {
-    // NOTE: ID should be generated at the database layer, but this is used for demonstration purpose
-    let id = '_' + Math.random().toString(36).substr(2, 9);
+    let id = '_' + Math.random().toString(36).substr(2, 9); // Unique identifer
     let saltRounds = 10; // Default
 
     // Auto generate a salt and hash
     bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
         if (err) {
-            // API layer error
+            // Return API internal server error
             res.send({
                 code: 500,
                 message: 'User could not be created. Internal server error has occured.',
@@ -27,6 +27,7 @@ router.post('/create', (req, res) => {
                 status: 'INTERNAL SERVER ERROR'
             });
         } else {
+            // Generate a user with the given hash password
             let user = {
                 id: id,
                 email: req.body.email,
@@ -40,7 +41,7 @@ router.post('/create', (req, res) => {
             // Database insertion
             let query = db.query(sql, user, (err, result) => {
                 if (err) {
-                    // Duplicate entry
+                    // Return duplicate entry error
                     if (err.code == 'ER_DUP_ENTRY') {
                         res.send({
                             code: 200,
@@ -50,7 +51,7 @@ router.post('/create', (req, res) => {
                         });
 
                     } else if (err.code == 'ER_NO_DEFAULT_FOR_FIELD') {
-                        // Required fields
+                        // Return required fields error
                         res.send({
                             code: 200,
                             message: 'User could not be created. A required field(s) is either null or empty',
@@ -58,7 +59,7 @@ router.post('/create', (req, res) => {
                             status: 'OK'
                         });
                     } else {
-                        // Database layer error
+                        // Return database layer error
                         res.send({
                             code: 500,
                             message: 'User could not be created. Internal server error has occured.',
@@ -67,7 +68,7 @@ router.post('/create', (req, res) => {
                         });
                     }
                 } else {
-                    // JWT token is not fully implemented, basic usage is used for demonstration
+                    // On success generate a jwt
                     const token = jwt.sign({
                         id: id,
                         firstName: req.body.firstName,
@@ -88,14 +89,16 @@ router.post('/create', (req, res) => {
     });
 });
 
+
 // RETRIEVE
 router.get('/', (req, res) => {
-    let sql = "SELECT * FROM user";
+    // let sql = "SELECT * FROM user";
+    let sql = "SELECT id, email, firstName, lastName FROM user"; // Return basic public information
 
     // Database retrieval
     let query = db.query(sql, (err, result) => {
         if (err) {
-            // Database layer error
+            // Return database layer error
             res.send({
                 code: 500,
                 message: 'Users could not be retrieved. Internal server error has occured.',
@@ -103,7 +106,7 @@ router.get('/', (req, res) => {
                 status: 'INTERNAL SERVER ERROR'
             })
         } else {
-            // Successful retrieval
+            // Return users with success status
             res.send({
                 code: 200,
                 data: result,
@@ -115,15 +118,17 @@ router.get('/', (req, res) => {
     })
 });
 
+
 // RETRIEVE user by id
 router.get('/:id', (req, res) => {
     let id = req.params.id;
-    let sql = `SELECT * FROM user WHERE id = "${id}"`;
+    // let sql = `SELECT * FROM user WHERE id = "${id}"`;
+    let sql = `SELECT id, email, firstName, lastName FROM user WHERE id = "${id}"`; // Return basic public information
 
     // Database retrieval
     let query = db.query(sql, (err, result) => {
         if (err) {
-            // Database layer error
+            // Return database layer error
             res.send({
                 code: 500,
                 message: `The user with the specified id:${id} could not be retrieved.`,
@@ -131,7 +136,7 @@ router.get('/:id', (req, res) => {
                 status: 'INTERNAL SERVER ERROR'
             })
         } else {
-            // Successful retrieval
+            // Return user with success status
             res.send({
                 code: 200,
                 data: result,
@@ -143,6 +148,7 @@ router.get('/:id', (req, res) => {
     })
 
 });
+
 
 // UPDATE
 router.post('/update/:id', (req, res) => {
@@ -157,6 +163,7 @@ router.post('/update/:id', (req, res) => {
     });
 });
 
+
 // DELETE
 router.delete('/:id', (req, res) => {
     let id = req.params.id;
@@ -165,7 +172,7 @@ router.delete('/:id', (req, res) => {
     // Database deletion
     let query = db.query(sql, (err, result) => {
         if (err) {
-            // Database layer error
+            // Return atabase layer error
             res.send({
                 code: 500,
                 message: `The user with the specified id:${id} could not be deleted.`,
@@ -173,7 +180,7 @@ router.delete('/:id', (req, res) => {
                 status: 'INTERNAL SERVER ERROR'
             })
         } else {
-            // Successful deletion
+            // Return deletion success result
             res.send({
                 code: 200,
                 message: `The user with the specified id:${id} has been deleted.`,
@@ -183,5 +190,6 @@ router.delete('/:id', (req, res) => {
         }
     })
 });
+
 
 module.exports = router;

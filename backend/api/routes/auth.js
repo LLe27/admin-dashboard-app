@@ -4,12 +4,15 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
+
+// Login
 router.post('/login', (req, res) => {
     let sql = `SELECT * FROM user WHERE email = "${req.body.email}"`;
 
+    // Query database for the email passed
     let query = db.query(sql, (err, result) => {
         if (err) {
-            // Database layer error
+            // Database layer error handling
             res.send({
                 code: 500,
                 message: `The user with the specified email:${req.body.email} could not be retrieved.`,
@@ -17,12 +20,14 @@ router.post('/login', (req, res) => {
                 status: 'INTERNAL SERVER ERROR'
             })
         } else {
-            // Successful retrieval
+            // Handle successful query
             if (result.length > 0) {
-                // JWT token is not fully implemented, basic usage is used for demonstration
+                // Retrieve first result since email is a unique field
                 const user = result[0];
 
+                // Verify password
                 bcrypt.compare(req.body.password, user.password, function (err, result) {
+                    // Return token to client
                     if (result) {
                         const token = jwt.sign({
                             id: user.id,
@@ -39,16 +44,18 @@ router.post('/login', (req, res) => {
                             token: token
                         })
                     } else {
+                        // Return unauthenticated error
                         res.send({
                             code: 200,
                             message: 'The credentials provided does not exists.',
-                            result: 'VERIFICATION',
+                            result: 'UNAUTHENTICATED',
                             status: 'OK'
                         })
                     }
                 });
 
             } else {
+                // Return non-existance error
                 res.send({
                     code: 200,
                     message: 'The credentials provided does not exists.',
@@ -62,11 +69,12 @@ router.post('/login', (req, res) => {
 });
 
 
-// AUTHENTICATION
+// User Authentication
 router.post('/', (req, res) => {
-    // Verify token
+    // Verify jwt with the given secret password
     jwt.verify(req.body.token, 'supersecretpassword', function (err, decoded) {
         if (err) {
+            // Return error if token is expired
             if (err.name == 'TokenExpiredError') {
                 res.send({
                     code: 500,
@@ -75,6 +83,7 @@ router.post('/', (req, res) => {
                     status: 'TokenExpiredError'
                 })
             } else {
+                // Return error if the JWT is malformed
                 res.send({
                     code: 500,
                     message: `JWT is malformed`,
@@ -83,6 +92,7 @@ router.post('/', (req, res) => {
                 })
             }
         } else {
+            // Return decoded user on success
             res.send({
                 code: 200,
                 user: decoded,

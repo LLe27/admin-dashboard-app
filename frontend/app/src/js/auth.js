@@ -21,17 +21,20 @@ export default {
             })
             .then((json) => {
                 if (json.code == 200) {
-                    this.user = json.user;
-                } else; {
-                    // Delete token and log user out with error
+                    // Return user object
+                    user = json.user;
+                }
+                else {
+                    // Return null if user is not retrieved
+                    user = null;
                 }
             })
             .catch((err) => {
-                // Delete token and log user out with error
-                console.log(err);
+                // Return null if error occurs
+                user = null;
             });
 
-        return this.user;
+        return user;
     },
     loggedIn() {
         if (localStorage.getItem('token')) {

@@ -47,7 +47,17 @@ export default {
     methods: {
         async getUser() {
             /* eslint-disable */
-            this.user = await auth.getUser(auth.getToken());
+            let user = await auth.getUser(auth.getToken());
+
+            // Error handling
+            if (!user) {
+                // Logout user if token has expired or malformed
+                auth.logout();
+            }
+            else {
+                // Set current user
+                this.user = user;
+            }
         },
         logout() {
             // Logout
