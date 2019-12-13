@@ -4,6 +4,7 @@
     - Attempted to make it as simple as possible.
 */
 
+const bcrypt = require('bcrypt');
 const db = require('../database/db');
 const express = require('express');
 const jwt = require('jsonwebtoken');
@@ -13,62 +14,78 @@ const router = express.Router();
 router.post('/create', (req, res) => {
     // NOTE: ID should be generated at the database layer, but this is used for demonstration purpose
     let id = '_' + Math.random().toString(36).substr(2, 9);
-    let user = {
-        id: id,
-        email: req.body.email,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        password: req.body.password
-    };
-    let sql = 'INSERT INTO user SET ?';
+    let saltRounds = 10; // Default
 
-    // Database insertion
-    let query = db.query(sql, user, (err, result) => {
+    // Auto generate a salt and hash
+    bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
         if (err) {
-            // Duplicate entry
-            if (err.code == 'ER_DUP_ENTRY') {
-                res.send({
-                    code: 200,
-                    message: 'User could not be created. The email already exists.',
-                    result: 'DUPLICATE ENTRY',
-                    status: 'OK'
-                });
-
-            } else if (err.code == 'ER_NO_DEFAULT_FOR_FIELD') {
-                // Required fields
-                res.send({
-                    code: 200,
-                    message: 'User could not be created. A required field(s) is either null or empty',
-                    result: 'REQUIRED FIELD',
-                    status: 'OK'
-                });
-            } else {
-                // Database layer error
-                res.send({
-                    code: 500,
-                    message: 'User could not be created. Internal server error has occured.',
-                    result: 'DATABASE ERROR',
-                    status: 'INTERNAL SERVER ERROR'
-                });
-            }
+            // API layer error
+            res.send({
+                code: 500,
+                message: 'User could not be created. Internal server error has occured.',
+                result: 'API ERROR',
+                status: 'INTERNAL SERVER ERROR'
+            });
         } else {
-            // JWT token is not fully implemented, basic usage is used for demonstration
-            const token = jwt.sign({
+            let user = {
                 id: id,
+                email: req.body.email,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
-                email: req.body.email
-            }, 'supersecretpassword');
+                password: hash
+            };
 
-            // Successful creation
-            res.send({
-                code: 201,
-                message: 'User has been created.',
-                status: 'OK',
-                token: token
-            });
+            let sql = 'INSERT INTO user SET ?';
+
+            // Database insertion
+            let query = db.query(sql, user, (err, result) => {
+                if (err) {
+                    // Duplicate entry
+                    if (err.code == 'ER_DUP_ENTRY') {
+                        res.send({
+                            code: 200,
+                            message: 'User could not be created. The email already exists.',
+                            result: 'DUPLICATE ENTRY',
+                            status: 'OK'
+                        });
+
+                    } else if (err.code == 'ER_NO_DEFAULT_FOR_FIELD') {
+                        // Required fields
+                        res.send({
+                            code: 200,
+                            message: 'User could not be created. A required field(s) is either null or empty',
+                            result: 'REQUIRED FIELD',
+                            status: 'OK'
+                        });
+                    } else {
+                        // Database layer error
+                        res.send({
+                            code: 500,
+                            message: 'User could not be created. Internal server error has occured.',
+                            result: 'DATABASE ERROR',
+                            status: 'INTERNAL SERVER ERROR'
+                        });
+                    }
+                } else {
+                    // JWT token is not fully implemented, basic usage is used for demonstration
+                    const token = jwt.sign({
+                        id: id,
+                        firstName: req.body.firstName,
+                        lastName: req.body.lastName,
+                        email: req.body.email
+                    }, 'supersecretpassword');
+
+                    // Successful creation
+                    res.send({
+                        code: 201,
+                        message: 'User has been created.',
+                        status: 'OK',
+                        token: token
+                    });
+                }
+            })
         }
-    })
+    });
 });
 
 // RETRIEVE

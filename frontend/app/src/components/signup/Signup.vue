@@ -88,7 +88,7 @@ export default {
             this.firstName = validFirstname;
         },
         handleLastName() {
-            let validLastName = this.validLastName
+            let validLastName = this.lastName;
 
             // Remove all whitespaces
             validLastName = validLastName.trim();

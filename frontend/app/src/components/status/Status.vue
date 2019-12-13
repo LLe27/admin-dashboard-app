@@ -45,8 +45,9 @@ export default {
         }
     },
     methods: {
-        getUser() {
-            this.user = auth.getUser();
+        async getUser() {
+            /* eslint-disable */
+            this.user = await auth.getUser(auth.getToken());
         },
         logout() {
             // Logout
